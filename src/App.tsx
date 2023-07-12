@@ -1,32 +1,45 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NewToDoForm } from "./NewToDoForm"
+import { ToDoList } from "./ToDoList"
 
 import "./styles.css";
 
 export default function App() {
-  const [toDo, setToDo] = useState([]); //empty array default
 
-  function addToDo(title:string){
+  // hooks
 
-    setToDo(currentTodo => {
+  const [toDo, setToDo] = useState(() => {
+    const localValue = localStorage.getItem("ITEM");
+    if (localValue == null) return []
+
+    return JSON.parse(localValue)
+  }); //empty array default
+
+
+  useEffect(() => {
+    localStorage.setItem("ITEM", JSON.stringify(toDo))
+  }, [toDo])
+
+
+  // helper functions
+  function addTodo(title) {
+    setToDo((currentTodo) => {
       return [
         ...currentTodo,
-        { id: crypto.randomUUID(), title: newItem, completed: false },
-        // three dots are called the spread operator, deconstructing an array/object into seperate variables
-      ]
-    })
+        { id: crypto.randomUUID(), title, completed: false },
+      ];
+    });
   }
-  
-  function toggleToDo(id, completed) {
-    setToDo(currentTodo => {
-      return currentTodo.map(toDo => {
-        if (toDo.id === id) {
-          return { ...toDo, completed }
-        }
 
+  function toggleToDo(id, completed) {
+    setToDo((currentTodo) => {
+      return currentTodo.map((toDo) => {
+        if (toDo.id === id) {
+          return { ...toDo, completed };
+        }
         return toDo;
-      })
-    })
+      });
+    });
   }
 
   function deleteToDo(id) {
@@ -36,33 +49,9 @@ export default function App() {
   }
   return (
     <>
-      <NewToDoForm />
+      <NewToDoForm onSubmit={addTodo} />
       <h1>TO DO LIST</h1>
-      <ul className="list">
-
-        {toDo.length === 0 && "No ToDos"}
-
-        {toDo.map((toDo) => {
-          return (
-            <li key={toDo.id}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={toDo.completed}
-                  onChange={(e) => toggleToDo(toDo.id, e.target.checked)}
-                />
-                {toDo.title}
-              </label>
-              <button
-                onClick={() => deleteToDo(toDo.id)}
-                className="btn btn-danger"
-              >
-                Delete
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      <ToDoList toDo={toDo} toggleToDo = {toggleToDo} deleteToDo = {deleteToDo}/>
     </>
   );
 }

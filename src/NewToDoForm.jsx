@@ -1,14 +1,15 @@
-import {useState} from 'react'
-export function NewToDoForm() {
-
+import { useState } from "react";
+export function NewToDoForm({ onSubmit }) {
+  
   const [newItem, setNewItem] = useState("");
 
   function handleSubmit(e) {
     e.preventDefault();
 
-    if (newItem === "") return //want to return something even if its emtpy
+    if (newItem === "") return;
 
-    addToDo(newItem)
+    onSubmit(newItem);
+
     setNewItem("");
   }
 
